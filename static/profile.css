@@ -1,0 +1,526 @@
+/* Profile Page Styles */
+.profile-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    background-color: white;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.profile-container:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    padding: 3rem;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 60%);
+    transform: rotate(-15deg);
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.profile-avatar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 60%);
+    z-index: -1;
+}
+
+.profile-avatar:hover {
+    transform: scale(1.05);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.profile-avatar i {
+    font-size: 3.2rem;
+    color: white;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-info h1 {
+    margin: 0 0 0.7rem 0;
+    color: white;
+    font-size: 2.4rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.profile-info h1::after {
+    display: none;
+}
+
+.role-badge {
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.15);
+    padding: 0.5rem 1.2rem;
+    border-radius: 30px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.7rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.role-badge:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.member-since {
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+/* Notifications */
+.notification {
+    padding: 1.2rem 1.5rem;
+    margin: 1.8rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.notification.success {
+    background-color: #e8f7f1;
+    color: var(--accent-color);
+    border-left: 5px solid var(--accent-color);
+}
+
+.notification.error {
+    background-color: #feeeed;
+    color: var(--danger-color);
+    border-left: 5px solid var(--danger-color);
+}
+
+.notification i {
+    margin-right: 0.8rem;
+    font-size: 1.2rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.05);
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Profile Tabs */
+.profile-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 2rem;
+    background: linear-gradient(to bottom, #f9fafc 0%, #ffffff 100%);
+}
+
+.tab-btn {
+    padding: 1.2rem 1.8rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-weight: 600;
+    color: #72788a;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1.05rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 3px;
+    background: var(--primary-gradient);
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+}
+
+.tab-btn:hover {
+    color: var(--primary-color);
+}
+
+.tab-btn:hover::after {
+    width: 100%;
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: transparent;
+}
+
+.tab-btn.active::after {
+    width: 100%;
+}
+
+/* Tab Content */
+.profile-content {
+    padding: 2.5rem;
+    background-color: #ffffff;
+}
+
+.tab-content {
+    display: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tab-content.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Form Styling */
+.form-group {
+    background: none;
+    padding: 0;
+    margin-bottom: 0;
+    box-shadow: none;
+    border: none;
+}
+
+.form-group:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.form-group h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1.8rem;
+    color: var(--dark-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.9rem;
+    position: relative;
+}
+
+.form-group h3::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: var(--primary-gradient);
+    border-radius: 2px;
+}
+
+.form-group h3 i {
+    color: var(--primary-color);
+    margin-right: 0.7rem;
+}
+
+.form-field input {
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e0e4e8;
+}
+
+.form-field input:focus {
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
+    border-color: rgba(52, 152, 219, 0.5);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2.5rem;
+}
+
+.save-btn {
+    padding: 0.9rem 2.2rem;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+.save-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.save-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.35);
+}
+
+.save-btn:hover::before {
+    transform: translateX(100%);
+}
+
+.save-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.save-btn i {
+    font-size: 1.1rem;
+}
+
+/* Disabled Input Styling */
+input[disabled] {
+    background-color: #f5f7fa;
+    cursor: not-allowed;
+    color: #777;
+    border-color: #e0e4e8;
+}
+
+/* Profile Footer */
+.profile-footer {
+    padding: 1.5rem 2.5rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-start;
+    background: linear-gradient(to top, #f9fafc 0%, #ffffff 100%);
+}
+
+.back-to-tool {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--dark-color);
+    font-weight: 500;
+    transition: all 0.3s;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+}
+
+.back-to-tool:hover {
+    color: var(--primary-color);
+    transform: translateX(-3px);
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+.back-to-tool i {
+    transition: transform 0.3s ease;
+}
+
+.back-to-tool:hover i {
+    transform: translateX(-3px);
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        transform: translateY(-25px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+    }
+}
+
+/* Input style enhancements */
+.form-field label {
+    margin-bottom: 0.7rem;
+    font-weight: 500;
+    color: #4a5568;
+    display: block;
+    font-size: 0.95rem;
+}
+
+.input-tip {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #718096;
+    font-style: italic;
+    display: block;
+}
+
+/* Password field animations */
+#security-tab .form-field input[type="password"]:focus {
+    box-shadow: 0 2px 8px rgba(155, 89, 182, 0.15);
+    border-color: rgba(155, 89, 182, 0.5);
+}
+
+#security-tab .save-btn {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    box-shadow: 0 6px 16px rgba(155, 89, 182, 0.25);
+}
+
+#security-tab .save-btn:hover {
+    box-shadow: 0 8px 20px rgba(155, 89, 182, 0.35);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .profile-container {
+        margin: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .profile-container:hover {
+        transform: none;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+        padding: 2rem;
+    }
+    
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .profile-avatar i {
+        font-size: 2.8rem;
+    }
+    
+    .profile-info h1 {
+        font-size: 2rem;
+    }
+    
+    .profile-tabs {
+        overflow-x: auto;
+        padding: 0;
+        justify-content: flex-start;
+    }
+    
+    .tab-btn {
+        padding: 1rem 1.2rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    
+    .profile-content {
+        padding: 1.5rem;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+    
+    .form-actions {
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .save-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .notification {
+        margin: 1.2rem;
+        padding: 1rem 2.2rem 1rem 1.2rem;
+    }
+    
+    .profile-footer {
+        padding: 1.2rem;
+    }
+    
+    .back-to-tool {
+        width: 100%;
+        justify-content: center;
+    }
+} 

@@ -2,188 +2,385 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Breast Cancer Prediction</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/"><i class="fas fa-heartbeat"></i> Breast Cancer Predictor</a>
+            </div>
+            <div class="user-info">
+                {% if user_name %}
+                <div class="user-dropdown">
+                    <a href="#" class="user-btn">
+                        <i class="fas fa-user-md"></i> 
+                        <span>Dr. {{ user_name }}</span>
+                        <i class="fas fa-caret-down"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="/profile"><i class="fas fa-id-card"></i> Profile</a>
+                        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="account-dropdown">
+                    <a href="#" class="account-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Account</span>
+                        <i class="fas fa-caret-down"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="/login"><i class="fas fa-sign-in-alt"></i> Log In</a>
+                        <a href="/signup"><i class="fas fa-user-plus"></i> Sign Up</a>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if user_name %}
+                <a href="/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
         <h1>Breast Cancer Predictor</h1>
         <p>Enter the cell nucleus features to predict if the breast mass is benign or malignant.</p>
-        
-        
+
         <div class="result">
             <h2>{{ prediction_text }}</h2>
             <p>{{ confidence }}</p>
+            {% if prediction_text %}
+            <div class="result-actions">
+                <button onclick="generatePDF()" class="pdf-btn"><i class="fas fa-file-pdf"></i> Generate PDF</button>
+                <button onclick="sendEmailReport()" class="email-btn"><i class="fas fa-envelope"></i> Email Report</button>
+            </div>
+            {% endif %}
         </div>
         
-        <form action="/predict" method="post">
-            <div class="form-group">
-                <h3>Mean Values</h3>
+        <!-- Toast Messages -->
+        <div id="toast-container"></div>
+        
+        <form action="/predict" method="post" id="prediction-form">
+            <!-- Patient Details Section -->
+            <div class="form-group patient-details">
+                <h3><i class="fas fa-user-circle"></i> Patient Details</h3>
                 <div class="form-row">
                     <div class="form-field">
-                        <label for="radius_mean">Radius Mean:</label>
-                        <input type="number" id="radius_mean" name="radius_mean" step="0.01" required>
+                        <label for="patient_name">Full Name:</label>
+                        <input type="text" id="patient_name" name="patient_name" value="{{ patient_name|default('') }}" required>
                     </div>
                     <div class="form-field">
-                        <label for="texture_mean">Texture Mean:</label>
-                        <input type="number" id="texture_mean" name="texture_mean" step="0.01" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="perimeter_mean">Perimeter Mean:</label>
-                        <input type="number" id="perimeter_mean" name="perimeter_mean" step="0.01" required>
+                        <label for="patient_age">Age:</label>
+                        <input type="number" id="patient_age" name="patient_age" min="1" max="120" value="{{ patient_age|default('') }}" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-field">
-                        <label for="area_mean">Area Mean:</label>
-                        <input type="number" id="area_mean" name="area_mean" step="0.01" required>
+                        <label for="patient_gender">Gender:</label>
+                        <select id="patient_gender" name="patient_gender" required>
+                            <option value="" {% if not patient_gender %}selected{% endif %}>Select Gender</option>
+                            <option value="Male" {% if patient_gender == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if patient_gender == 'Female' %}selected{% endif %}>Female</option>
+                            <option value="Other" {% if patient_gender == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
                     </div>
                     <div class="form-field">
-                        <label for="smoothness_mean">Smoothness Mean:</label>
-                        <input type="number" id="smoothness_mean" name="smoothness_mean" step="0.000001" required>
+                        <label for="patient_contact">Contact Number:</label>
+                        <input type="tel" id="patient_contact" name="patient_contact" value="{{ patient_contact|default('') }}" required>
                     </div>
                     <div class="form-field">
-                        <label for="compactness_mean">Compactness Mean:</label>
-                        <input type="number" id="compactness_mean" name="compactness_mean" step="0.000001" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="concavity_mean">Concavity Mean:</label>
-                        <input type="number" id="concavity_mean" name="concavity_mean" step="0.000001" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="concave_points_mean">Concave Points Mean:</label>
-                        <input type="number" id="concave_points_mean" name="concave_points_mean" step="0.000001" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="symmetry_mean">Symmetry Mean:</label>
-                        <input type="number" id="symmetry_mean" name="symmetry_mean" step="0.000001" required>
+                        <label for="patient_email">Email Address:</label>
+                        <input type="email" id="patient_email" name="patient_email" value="{{ patient_email|default('') }}" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-field">
-                        <label for="fractal_dimension_mean">Fractal Dimension Mean:</label>
-                        <input type="number" id="fractal_dimension_mean" name="fractal_dimension_mean" step="0.000001" required>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <h3>Standard Error Values</h3>
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="radius_se">Radius SE:</label>
-                        <input type="number" id="radius_se" name="radius_se" step="0.01" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="texture_se">Texture SE:</label>
-                        <input type="number" id="texture_se" name="texture_se" step="0.01" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="perimeter_se">Perimeter SE:</label>
-                        <input type="number" id="perimeter_se" name="perimeter_se" step="0.01" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="area_se">Area SE:</label>
-                        <input type="number" id="area_se" name="area_se" step="0.01" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="smoothness_se">Smoothness SE:</label>
-                        <input type="number" id="smoothness_se" name="smoothness_se" step="0.000001" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="compactness_se">Compactness SE:</label>
-                        <input type="number" id="compactness_se" name="compactness_se" step="0.000001" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="concavity_se">Concavity SE:</label>
-                        <input type="number" id="concavity_se" name="concavity_se" step="0.000001" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="concave_points_se">Concave Points SE:</label>
-                        <input type="number" id="concave_points_se" name="concave_points_se" step="0.000001" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="symmetry_se">Symmetry SE:</label>
-                        <input type="number" id="symmetry_se" name="symmetry_se" step="0.000001" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="fractal_dimension_se">Fractal Dimension SE:</label>
-                        <input type="number" id="fractal_dimension_se" name="fractal_dimension_se" step="0.000001" required>
+                        <label for="patient_blood">Blood Group:</label>
+                        <select id="patient_blood" name="patient_blood" required>
+                            <option value="" {% if not patient_blood %}selected{% endif %}>Select Blood Group</option>
+                            <option value="A+" {% if patient_blood == 'A+' %}selected{% endif %}>A+</option>
+                            <option value="A-" {% if patient_blood == 'A-' %}selected{% endif %}>A-</option>
+                            <option value="B+" {% if patient_blood == 'B+' %}selected{% endif %}>B+</option>
+                            <option value="B-" {% if patient_blood == 'B-' %}selected{% endif %}>B-</option>
+                            <option value="AB+" {% if patient_blood == 'AB+' %}selected{% endif %}>AB+</option>
+                            <option value="AB-" {% if patient_blood == 'AB-' %}selected{% endif %}>AB-</option>
+                            <option value="O+" {% if patient_blood == 'O+' %}selected{% endif %}>O+</option>
+                            <option value="O-" {% if patient_blood == 'O-' %}selected{% endif %}>O-</option>
+                        </select>
                     </div>
                 </div>
             </div>
             
             <div class="form-group">
-                <h3>Worst Values</h3>
+                <h3><i class="fas fa-microscope"></i> Key Diagnostic Features</h3>
+                <p class="feature-info">These are the most important features for accurate breast cancer prediction.</p>
+                
                 <div class="form-row">
                     <div class="form-field">
-                        <label for="radius_worst">Radius Worst:</label>
+                        <label for="radius_worst">Radius (worst):</label>
                         <input type="number" id="radius_worst" name="radius_worst" step="0.01" required>
+                        <span class="input-tip">Distance from center to perimeter points</span>
                     </div>
                     <div class="form-field">
-                        <label for="texture_worst">Texture Worst:</label>
-                        <input type="number" id="texture_worst" name="texture_worst" step="0.01" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="perimeter_worst">Perimeter Worst:</label>
-                        <input type="number" id="perimeter_worst" name="perimeter_worst" step="0.01" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-field">
-                        <label for="area_worst">Area Worst:</label>
+                        <label for="area_worst">Area (worst):</label>
                         <input type="number" id="area_worst" name="area_worst" step="0.01" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="smoothness_worst">Smoothness Worst:</label>
-                        <input type="number" id="smoothness_worst" name="smoothness_worst" step="0.000001" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="compactness_worst">Compactness Worst:</label>
-                        <input type="number" id="compactness_worst" name="compactness_worst" step="0.000001" required>
+                        <span class="input-tip">Total area of the cell nucleus</span>
                     </div>
                 </div>
+                
                 <div class="form-row">
                     <div class="form-field">
-                        <label for="concavity_worst">Concavity Worst:</label>
+                        <label for="perimeter_worst">Perimeter (worst):</label>
+                        <input type="number" id="perimeter_worst" name="perimeter_worst" step="0.01" required>
+                        <span class="input-tip">Total perimeter of the cell nucleus</span>
+                    </div>
+                    <div class="form-field">
+                        <label for="concave_points_mean">Concave Points (mean):</label>
+                        <input type="number" id="concave_points_mean" name="concave_points_mean" step="0.000001" required>
+                        <span class="input-tip">Number of concave portions of the contour</span>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="concavity_worst">Concavity (worst):</label>
                         <input type="number" id="concavity_worst" name="concavity_worst" step="0.000001" required>
+                        <span class="input-tip">Severity of concave portions of the contour</span>
                     </div>
                     <div class="form-field">
-                        <label for="concave_points_worst">Concave Points Worst:</label>
-                        <input type="number" id="concave_points_worst" name="concave_points_worst" step="0.000001" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="symmetry_worst">Symmetry Worst:</label>
-                        <input type="number" id="symmetry_worst" name="symmetry_worst" step="0.000001" required>
+                        <label for="compactness_worst">Compactness (worst):</label>
+                        <input type="number" id="compactness_worst" name="compactness_worst" step="0.000001" required>
+                        <span class="input-tip">Perimeter² / area - 1.0</span>
                     </div>
                 </div>
+                
                 <div class="form-row">
                     <div class="form-field">
-                        <label for="fractal_dimension_worst">Fractal Dimension Worst:</label>
-                        <input type="number" id="fractal_dimension_worst" name="fractal_dimension_worst" step="0.000001" required>
+                        <label for="texture_worst">Texture (worst):</label>
+                        <input type="number" id="texture_worst" name="texture_worst" step="0.01" required>
+                        <span class="input-tip">Standard deviation of gray-scale values</span>
+                    </div>
+                    <div class="form-field">
+                        <label for="area_mean">Area (mean):</label>
+                        <input type="number" id="area_mean" name="area_mean" step="0.01" required>
+                        <span class="input-tip">Average area of the cell nucleus</span>
                     </div>
                 </div>
+                
+                <!-- Hidden fields with default values for the remaining required features -->
+                <input type="hidden" id="texture_mean" name="texture_mean" value="16.89" >
+                <input type="hidden" id="perimeter_mean" name="perimeter_mean" value="92.58" >
+                <input type="hidden" id="smoothness_mean" name="smoothness_mean" value="0.1" >
+                <input type="hidden" id="compactness_mean" name="compactness_mean" value="0.1" >
+                <input type="hidden" id="concavity_mean" name="concavity_mean" value="0.09" >
+                <input type="hidden" id="symmetry_mean" name="symmetry_mean" value="0.18" >
+                <input type="hidden" id="fractal_dimension_mean" name="fractal_dimension_mean" value="0.063" >
+                <input type="hidden" id="radius_mean" name="radius_mean" value="14.5" >
+                
+                <input type="hidden" id="radius_se" name="radius_se" value="0.4" >
+                <input type="hidden" id="texture_se" name="texture_se" value="0.9" >
+                <input type="hidden" id="perimeter_se" name="perimeter_se" value="2.9" >
+                <input type="hidden" id="area_se" name="area_se" value="22.6" >
+                <input type="hidden" id="smoothness_se" name="smoothness_se" value="0.007" >
+                <input type="hidden" id="compactness_se" name="compactness_se" value="0.025" >
+                <input type="hidden" id="concavity_se" name="concavity_se" value="0.032" >
+                <input type="hidden" id="concave_points_se" name="concave_points_se" value="0.012" >
+                <input type="hidden" id="symmetry_se" name="symmetry_se" value="0.021" >
+                <input type="hidden" id="fractal_dimension_se" name="fractal_dimension_se" value="0.004" >
+                
+                <input type="hidden" id="smoothness_worst" name="smoothness_worst" value="0.14" >
+                <input type="hidden" id="concave_points_worst" name="concave_points_worst" value="0.14" >
+                <input type="hidden" id="symmetry_worst" name="symmetry_worst" value="0.3" >
+                <input type="hidden" id="fractal_dimension_worst" name="fractal_dimension_worst" value="0.1" >
             </div>
             
             <div class="form-row submit-row">
-                <button type="submit" class="predict-btn">Predict</button>
-                <button type="reset" class="reset-btn">Reset</button>
+                <button type="submit" class="predict-btn"><i class="fas fa-search"></i> Predict</button>
+                <button type="reset" class="reset-btn"><i class="fas fa-redo-alt"></i> Reset</button>
+            </div>
+            
+            <div class="sample-data">
+                <h4>Sample Data for Testing</h4>
+                <p class="sample-malignant">Malignant Sample: Radius (worst): 25.38, Area (worst): 2501.0, Perimeter (worst): 184.6, Concave Points (mean): 0.146, Concavity (worst): 0.8663, Compactness (worst): 0.6869, Texture (worst): 39.28, Area (mean): 1001.0</p>
+                <p class="sample-benign">Benign Sample: Radius (worst): 13.45, Area (worst): 551.1, Perimeter (worst): 87.38, Concave Points (mean): 0.025, Concavity (worst): 0.1109, Compactness (worst): 0.1354, Texture (worst): 19.08, Area (mean): 487.1</p>
+                <div class="sample-btns">
+                    <button type="button" class="fill-btn malignant-btn"><i class="fas fa-exclamation-circle"></i> Fill Malignant Sample</button>
+                    <button type="button" class="fill-btn benign-btn"><i class="fas fa-check-circle"></i> Fill Benign Sample</button>
+                </div>
             </div>
         </form>
-        
-        <div class="sample-data">
-            <h3>Sample Data for Testing</h3>
-            <p>Benign example: Radius Mean: 12.32, Texture Mean: 12.39, Perimeter Mean: 78.85, Area Mean: 464.1, Smoothness Mean: 0.1028, Compactness Mean: 0.06981, Concavity Mean: 0.03987, Concave Points Mean: 0.02172, Symmetry Mean: 0.1707, Fractal Dimension Mean: 0.05915, Radius SE: 0.1979, Texture SE: 0.7655, Perimeter SE: 1.337, Area SE: 15.48, Smoothness SE: 0.005263, Compactness SE: 0.01084, Concavity SE: 0.01148, Concave Points SE: 0.00644, Symmetry SE: 0.01566, Fractal Dimension SE: 0.002178, Radius Worst: 13.5, Texture Worst: 15.64, Perimeter Worst: 86.97, Area Worst: 549.1, Smoothness Worst: 0.1296, Compactness Worst: 0.1105, Concavity Worst: 0.1204, Concave Points Worst: 0.0458, Symmetry Worst: 0.2422, Fractal Dimension Worst: 0.07115</p>
-            <p>Malignant example: Radius Mean: 18.25, Texture Mean: 19.98, Perimeter Mean: 119.6, Area Mean: 1040, Smoothness Mean: 0.09463, Compactness Mean: 0.109, Concavity Mean: 0.1127, Concave Points Mean: 0.074, Symmetry Mean: 0.1794, Fractal Dimension Mean: 0.05742, Radius SE: 0.4467, Texture SE: 0.7732, Perimeter SE: 3.18, Area SE: 53.91, Smoothness SE: 0.004314, Compactness SE: 0.01382, Concavity SE: 0.02254, Concave Points SE: 0.01039, Symmetry SE: 0.01369, Fractal Dimension SE: 0.002179, Radius Worst: 20.2, Texture Worst: 23.63, Perimeter Worst: 135.1, Area Worst: 1272, Smoothness Worst: 0.1139, Compactness Worst: 0.1806, Concavity Worst: 0.2332, Concave Points Worst: 0.1228, Symmetry Worst: 0.2399, Fractal Dimension Worst: 0.07359</p>
-        </div>
     </div>
+
+    <script>
+        // Function to generate PDF
+        function generatePDF() {
+            window.location.href = "/generate_pdf";
+        }
+        
+        // Function to send email report
+        function sendEmailReport() {
+            // Check if patient email exists
+            const patientEmail = document.getElementById('patient_email').value;
+            if (!patientEmail) {
+                showToast('Please provide a patient email address', 'error');
+                document.getElementById('patient_email').focus();
+                return;
+            }
+            
+            // Show loading state
+            const emailBtn = document.querySelector('.email-btn');
+            const originalText = emailBtn.innerHTML;
+            emailBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            emailBtn.disabled = true;
+            
+            fetch('/send_email_report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Failed to send email. Please try again.', 'error');
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                // Reset button state
+                emailBtn.innerHTML = originalText;
+                emailBtn.disabled = false;
+            });
+        }
+        
+        // Function to show toast messages
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            // Create toast content
+            const toastContent = document.createElement('div');
+            toastContent.className = 'toast-content';
+            toastContent.textContent = message;
+            
+            // Create close button
+            const closeButton = document.createElement('button');
+            closeButton.className = 'toast-close';
+            closeButton.innerHTML = '&times;';
+            closeButton.onclick = function() {
+                toast.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            };
+            
+            // Append elements
+            toast.appendChild(toastContent);
+            toast.appendChild(closeButton);
+            toastContainer.appendChild(toast);
+            
+            // Remove toast after 5 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+        
+        // Fill form with sample data
+        document.querySelector('.malignant-btn').addEventListener('click', function() {
+            document.getElementById('radius_worst').value = '25.38';
+            document.getElementById('area_worst').value = '2501.0';
+            document.getElementById('perimeter_worst').value = '184.6';
+            document.getElementById('concave_points_mean').value = '0.146';
+            document.getElementById('concavity_worst').value = '0.8663';
+            document.getElementById('compactness_worst').value = '0.6869';
+            document.getElementById('texture_worst').value = '39.28';
+            document.getElementById('area_mean').value = '1001.0';
+        });
+        
+        document.querySelector('.benign-btn').addEventListener('click', function() {
+            document.getElementById('radius_worst').value = '13.45';
+            document.getElementById('area_worst').value = '551.1';
+            document.getElementById('perimeter_worst').value = '87.38';
+            document.getElementById('concave_points_mean').value = '0.025';
+            document.getElementById('concavity_worst').value = '0.1109';
+            document.getElementById('compactness_worst').value = '0.1354';
+            document.getElementById('texture_worst').value = '19.08';
+            document.getElementById('area_mean').value = '487.1';
+        });
+
+        // Navigation scroll effect
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('.top-nav');
+            if (window.scrollY > 20) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Add hover effect for dropdown menus
+        const dropdowns = document.querySelectorAll('.user-dropdown, .account-dropdown');
+        const isMobile = window.innerWidth <= 768;
+        
+        dropdowns.forEach(dropdown => {
+            const btn = dropdown.querySelector('.user-btn, .account-btn');
+            const menu = dropdown.querySelector('.dropdown-menu');
+            
+            dropdown.addEventListener('mouseenter', () => {
+                menu.style.opacity = '1';
+                menu.style.visibility = 'visible';
+                
+                if (isMobile) {
+                    menu.style.transform = 'translateX(-50%) translateY(0)';
+                } else {
+                    menu.style.transform = 'translateY(0)';
+                }
+            });
+            
+            dropdown.addEventListener('mouseleave', () => {
+                menu.style.opacity = '0';
+                menu.style.visibility = 'hidden';
+                
+                if (isMobile) {
+                    menu.style.transform = 'translateX(-50%) translateY(10px)';
+                } else {
+                    menu.style.transform = 'translateY(10px)';
+                }
+            });
+        });
+        
+        // Update dropdown positioning on window resize
+        window.addEventListener('resize', () => {
+            const isNowMobile = window.innerWidth <= 768;
+            if (isNowMobile !== isMobile) {
+                location.reload();
+            }
+        });
+    </script>
 </body>
 </html>

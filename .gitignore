@@ -1,1 +1,55 @@
-myenv
+# Python-specific
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# SQLite database
+*.db
+*.db-journal
+
+# Virtual environment
+venv/
+ENV/
+env/
+
+# IDE-specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Debug logs
+*.log
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Local development settings
+.env
+.env.local
+
+# Machine learning model files (if large)
+# Uncomment if you don't want to include the model file
+# *.pkl
+# *.h5

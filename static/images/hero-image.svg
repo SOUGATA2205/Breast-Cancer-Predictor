@@ -1,0 +1,49 @@
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <rect width="600" height="400" rx="20" fill="url(#paint0_linear)" />
+  
+  <!-- Medical cross symbol -->
+  <rect x="280" y="80" width="40" height="240" rx="8" fill="#3498db" opacity="0.2" />
+  <rect x="180" y="180" width="240" height="40" rx="8" fill="#3498db" opacity="0.2" />
+  
+  <!-- Microscope -->
+  <path d="M350 210 L410 150 L440 180 L380 240 Z" fill="#2980b9" opacity="0.8" />
+  <circle cx="425" cy="165" r="15" fill="#3498db" />
+  <rect x="350" y="210" width="30" height="80" rx="5" fill="#2c3e50" />
+  <rect x="330" y="280" width="70" height="10" rx="3" fill="#34495e" />
+  
+  <!-- DNA Helix -->
+  <path d="M120 80 Q 170 120, 120 160 Q 70 200, 120 240 Q 170 280, 120 320" stroke="#e74c3c" stroke-width="5" fill="none" />
+  <path d="M180 80 Q 130 120, 180 160 Q 230 200, 180 240 Q 130 280, 180 320" stroke="#3498db" stroke-width="5" fill="none" />
+  
+  <!-- Connecting lines (like in DNA) -->
+  <line x1="120" y1="100" x2="180" y2="100" stroke="#2c3e50" stroke-width="3" />
+  <line x1="120" y1="140" x2="180" y2="140" stroke="#2c3e50" stroke-width="3" />
+  <line x1="120" y1="180" x2="180" y2="180" stroke="#2c3e50" stroke-width="3" />
+  <line x1="120" y1="220" x2="180" y2="220" stroke="#2c3e50" stroke-width="3" />
+  <line x1="120" y1="260" x2="180" y2="260" stroke="#2c3e50" stroke-width="3" />
+  <line x1="120" y1="300" x2="180" y2="300" stroke="#2c3e50" stroke-width="3" />
+  
+  <!-- Cell shapes -->
+  <circle cx="500" cy="100" r="30" fill="#27ae60" opacity="0.6" />
+  <circle cx="540" cy="150" r="20" fill="#e74c3c" opacity="0.5" />
+  <circle cx="480" cy="180" r="25" fill="#f39c12" opacity="0.5" />
+  <circle cx="520" cy="220" r="15" fill="#8e44ad" opacity="0.5" />
+  <circle cx="490" cy="260" r="22" fill="#16a085" opacity="0.5" />
+  <circle cx="530" cy="300" r="28" fill="#d35400" opacity="0.5" />
+  
+  <!-- Pulse line (heart rate like) -->
+  <path d="M50 350 L75 350 L85 320 L95 380 L105 330 L115 350 L140 350" stroke="#e74c3c" stroke-width="3" fill="none" />
+  <path d="M150 350 L175 350 L185 320 L195 380 L205 330 L215 350 L240 350" stroke="#e74c3c" stroke-width="3" fill="none" />
+  <path d="M250 350 L275 350 L285 320 L295 380 L305 330 L315 350 L340 350" stroke="#e74c3c" stroke-width="3" fill="none" />
+  <path d="M350 350 L375 350 L385 320 L395 380 L405 330 L415 350 L440 350" stroke="#e74c3c" stroke-width="3" fill="none" />
+  <path d="M450 350 L475 350 L485 320 L495 380 L505 330 L515 350 L540 350" stroke="#e74c3c" stroke-width="3" fill="none" />
+  
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="paint0_linear" x1="0" y1="0" x2="600" y2="400" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f5f7fa" />
+      <stop offset="1" stop-color="#e4ecf9" />
+    </linearGradient>
+  </defs>
+</svg> 
