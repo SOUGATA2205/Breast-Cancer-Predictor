@@ -3,14 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Breast Cancer Prediction Tool</title>
+    <title>Automated Breast Cancer Predictor</title>
     <link rel="stylesheet" href="../static/landing.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <header>
         <div class="container">
-            <h1><i class="fas fa-heartbeat"></i> Automated Breast Cancer Predictor</h1>
+            <h1><i class="fas fa-heartbeat"></i>Automated Breast Cancer Predictor</h1>
+            <button class="menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
             <nav>
                 <ul>
                     <li><a href="#home" class="nav-link">Home</a></li>
@@ -22,7 +27,7 @@
                         <div class="account-dropdown">
                             <a href="#" class="account-btn">
                                 <i class="fas fa-user-md"></i> 
-                                <span>Dr. {{ user_name }}</span>
+                                <span>{% if user_role == "Doctor" %}Dr. {% endif %}{{ user_name }}</span>
                                 <i class="fas fa-caret-down"></i>
                             </a>
                             <div class="dropdown-menu">
@@ -83,7 +88,7 @@
                         <p>Prediction Accuracy</p>
                     </div>
                     <div class="stat-box">
-                        <h3>30</h3>
+                        <h3>8</h3>
                         <p>Feature Analysis</p>
                     </div>
                     <div class="stat-box">
@@ -102,7 +107,7 @@
                 <div class="feature-box">
                     <i class="fas fa-microscope"></i>
                     <h3>Comprehensive Analysis</h3>
-                    <p>Analyzes 30 different cell nucleus features to make accurate predictions</p>
+                    <p>Analyzes 8 different cell nucleus features to make accurate predictions</p>
                 </div>
                 <div class="feature-box">
                     <i class="fas fa-file-pdf"></i>
@@ -123,6 +128,11 @@
                     <i class="fas fa-shield-alt"></i>
                     <h3>Data Privacy</h3>
                     <p>Patient data is processed securely and not stored permanently</p>
+                </div>
+                <div class="feature-box">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Advanced Visualization</h3>
+                    <p>Interactive charts and graphs to visualize risk factors, feature importance, and comparison with typical cases</p>
                 </div>
             </div>
         </div>
@@ -156,12 +166,19 @@
                 <div class="step">
                     <div class="step-number">4</div>
                     <div class="step-content">
+                        <h3>Visualize Data</h3>
+                        <p>Explore interactive visualizations showing prediction confidence, risk factors, feature importance, and comparisons with typical cases</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
                         <h3>Generate Report</h3>
                         <p>Create a professional PDF report for medical records and patient information</p>
                     </div>
                 </div>
                 <div class="step">
-                    <div class="step-number">5</div>
+                    <div class="step-number">6</div>
                     <div class="step-content">
                         <h3>Share Results</h3>
                         <p>Email the report directly to patients securely with detailed diagnosis information</p>
@@ -182,7 +199,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-logo">
-                    <h3><i class="fas fa-heartbeat"></i> Breast Cancer Predictor</h3>
+                    <h3><i class="fas fa-heartbeat"></i> Automated Breast Cancer Predictor</h3>
                     <p>A machine learning tool for early breast cancer detection</p>
                 </div>
                 <div class="footer-links">
@@ -224,7 +241,22 @@
                     top: targetSection.offsetTop - 80,
                     behavior: 'smooth'
                 });
+
+                // Close mobile menu after clicking a link
+                if (window.innerWidth <= 768) {
+                    document.querySelector('nav').classList.remove('active');
+                    document.querySelector('.menu-toggle').classList.remove('active');
+                }
             });
+        });
+        
+        // Mobile menu toggle
+        const menuToggle = document.querySelector('.menu-toggle');
+        const nav = document.querySelector('nav');
+        
+        menuToggle.addEventListener('click', function() {
+            nav.classList.toggle('active');
+            this.classList.toggle('active');
         });
         
         // Account dropdown functionality
@@ -236,29 +268,26 @@
             const menu = dropdown.querySelector('.dropdown-menu');
             
             if (btn && menu) {
-                dropdown.addEventListener('mouseenter', () => {
-                    menu.style.opacity = '1';
-                    menu.style.visibility = 'visible';
-                    menu.style.transform = isMobile ? 'none' : 'translateY(0)';
+                if (isMobile) {
+                    // Click to toggle dropdown on mobile
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        menu.classList.toggle('active');
+                    });
+                } else {
+                    // Hover effect on desktop
+                    dropdown.addEventListener('mouseenter', () => {
+                        menu.style.opacity = '1';
+                        menu.style.visibility = 'visible';
+                        menu.style.transform = 'translateY(0)';
+                    });
                     
-                    if (isMobile) {
-                        menu.style.display = 'block';
-                    }
-                });
-                
-                dropdown.addEventListener('mouseleave', () => {
-                    menu.style.opacity = '0';
-                    menu.style.visibility = 'hidden';
-                    menu.style.transform = isMobile ? 'none' : 'translateY(10px)';
-                    
-                    if (isMobile) {
-                        setTimeout(() => {
-                            if (menu.style.opacity === '0') {
-                                menu.style.display = 'none';
-                            }
-                        }, 300);
-                    }
-                });
+                    dropdown.addEventListener('mouseleave', () => {
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(10px)';
+                    });
+                }
             }
         });
         

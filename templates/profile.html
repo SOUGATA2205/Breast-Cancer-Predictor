@@ -1,40 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - Breast Cancer Predictor</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="../static/landing.css">
     <link rel="stylesheet" href="../static/profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <nav class="top-nav">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <a href="/"><i class="fas fa-heartbeat"></i> Breast Cancer Predictor</a>
-            </div>
-            <div class="user-info">
-                <div class="user-dropdown">
-                    <a href="#" class="user-btn">
-                        <i class="fas fa-user-md"></i> 
-                        <span>Dr. {{ user_name }}</span>
-                        <i class="fas fa-caret-down"></i>
-                    </a>
-                    <div class="dropdown-menu">
-                        <a href="/profile"><i class="fas fa-id-card"></i> Profile</a>
-                        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                    </div>
-                </div>
-                <a href="/logout" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </div>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-heartbeat"></i> Automated Breast Cancer Predictor</h1>
+            <button class="menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/tool">Prediction Tool</a></li>
+                    {% if user_name %}
+                    <li>
+                        <div class="account-dropdown">
+                            <a href="#" class="account-btn">
+                                <i class="fas fa-user-md"></i> 
+                                <span>{% if user_role == "Doctor" %}Dr. {% endif %}{{ user_name }}</span>
+                                <i class="fas fa-caret-down"></i>
+                            </a>
+                            <div class="dropdown-menu">
+                                <a href="/profile"><i class="fas fa-id-card"></i> Profile</a>
+                                <a href="/tool"><i class="fas fa-microscope"></i> Prediction Tool</a>
+                                <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            </div>
+                        </div>
+                    </li>
+                    {% else %}
+                    <li>
+                        <div class="account-dropdown">
+                            <a href="#" class="auth-btn">
+                                <i class="fas fa-user-circle"></i>
+                                <span>Account</span>
+                                <i class="fas fa-caret-down"></i>
+                            </a>
+                            <div class="dropdown-menu">
+                                <a href="/login"><i class="fas fa-sign-in-alt"></i> Log In</a>
+                                <a href="/signup"><i class="fas fa-user-plus"></i> Sign Up</a>
+                            </div>
+                        </div>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
         </div>
-    </nav>
+    </header>
 
     <div class="container">
         <div class="profile-container">
@@ -179,6 +199,58 @@
                 notification.style.display = 'none';
             });
         }, 5000);
+        
+        // Mobile menu toggle
+        const menuToggle = document.querySelector('.menu-toggle');
+        const nav = document.querySelector('nav');
+        
+        menuToggle.addEventListener('click', function() {
+            nav.classList.toggle('active');
+            this.classList.toggle('active');
+        });
+        
+        // Account dropdown functionality
+        const accountDropdowns = document.querySelectorAll('.account-dropdown');
+        const isMobile = window.innerWidth <= 768;
+        
+        accountDropdowns.forEach(dropdown => {
+            const btn = dropdown.querySelector('.account-btn, .auth-btn');
+            const menu = dropdown.querySelector('.dropdown-menu');
+            
+            if (btn && menu) {
+                dropdown.addEventListener('mouseenter', () => {
+                    menu.style.opacity = '1';
+                    menu.style.visibility = 'visible';
+                    menu.style.transform = isMobile ? 'none' : 'translateY(0)';
+                    
+                    if (isMobile) {
+                        menu.style.display = 'block';
+                    }
+                });
+                
+                dropdown.addEventListener('mouseleave', () => {
+                    menu.style.opacity = '0';
+                    menu.style.visibility = 'hidden';
+                    menu.style.transform = isMobile ? 'none' : 'translateY(10px)';
+                    
+                    if (isMobile) {
+                        setTimeout(() => {
+                            if (menu.style.opacity === '0') {
+                                menu.style.display = 'none';
+                            }
+                        }, 300);
+                    }
+                });
+            }
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const newIsMobile = window.innerWidth <= 768;
+            if (newIsMobile !== isMobile) {
+                location.reload();
+            }
+        });
     </script>
 </body>
 </html> 

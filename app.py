@@ -166,7 +166,9 @@ def logout():
 @app.route('/tool')
 @login_required
 def tool():
-    return render_template('index.html', user_name=session.get('user_name'))
+    return render_template('index.html', 
+                          user_name=session.get('user_name'),
+                          user_role=session.get('user_role'))
 
 @app.route('/predict', methods=['POST'])
 @login_required
@@ -181,39 +183,67 @@ def predict():
         'email': request.form.get('patient_email')
     }
     
-    # Get feature values from the form
+    # Safe function to get form values with defaults
+    def get_form_float(field_name, default=0.0):
+        value = request.form.get(field_name)
+        if value is None or value == '':
+            return default
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            print(f"Warning: Could not convert {field_name}='{value}' to float, using default {default}")
+            return default
+    
+    # Get feature values from the form with safety checks
     features = [
-        float(request.form.get('radius_mean')),
-        float(request.form.get('texture_mean')),
-        float(request.form.get('perimeter_mean')),
-        float(request.form.get('area_mean')),
-        float(request.form.get('smoothness_mean')),
-        float(request.form.get('compactness_mean')),
-        float(request.form.get('concavity_mean')),
-        float(request.form.get('concave_points_mean')),
-        float(request.form.get('symmetry_mean')),
-        float(request.form.get('fractal_dimension_mean')),
-        float(request.form.get('radius_se')),
-        float(request.form.get('texture_se')),
-        float(request.form.get('perimeter_se')),
-        float(request.form.get('area_se')),
-        float(request.form.get('smoothness_se')),
-        float(request.form.get('compactness_se')),
-        float(request.form.get('concavity_se')),
-        float(request.form.get('concave_points_se')),
-        float(request.form.get('symmetry_se')),
-        float(request.form.get('fractal_dimension_se')),
-        float(request.form.get('radius_worst')),
-        float(request.form.get('texture_worst')),
-        float(request.form.get('perimeter_worst')),
-        float(request.form.get('area_worst')),
-        float(request.form.get('smoothness_worst')),
-        float(request.form.get('compactness_worst')),
-        float(request.form.get('concavity_worst')),
-        float(request.form.get('concave_points_worst')),
-        float(request.form.get('symmetry_worst')),
-        float(request.form.get('fractal_dimension_worst'))
+        get_form_float('radius_mean'),
+        get_form_float('texture_mean'),
+        get_form_float('perimeter_mean'),
+        get_form_float('area_mean'),
+        get_form_float('smoothness_mean'),
+        get_form_float('compactness_mean'),
+        get_form_float('concavity_mean'),
+        get_form_float('concave_points_mean'),
+        get_form_float('symmetry_mean'),
+        get_form_float('fractal_dimension_mean'),
+        get_form_float('radius_se'),
+        get_form_float('texture_se'),
+        get_form_float('perimeter_se'),
+        get_form_float('area_se'),
+        get_form_float('smoothness_se'),
+        get_form_float('compactness_se'),
+        get_form_float('concavity_se'),
+        get_form_float('concave_points_se'),
+        get_form_float('symmetry_se'),
+        get_form_float('fractal_dimension_se'),
+        get_form_float('radius_worst'),
+        get_form_float('texture_worst'),
+        get_form_float('perimeter_worst'),
+        get_form_float('area_worst'),
+        get_form_float('smoothness_worst'),
+        get_form_float('compactness_worst'),
+        get_form_float('concavity_worst'),
+        get_form_float('concave_points_worst'),
+        get_form_float('symmetry_worst'),
+        get_form_float('fractal_dimension_worst')
     ]
+
+    # Check if all values are zero or very close to zero
+    all_zeros = all(abs(val) < 0.0001 for val in features)
+    key_fields_present = False
+    
+    # Check if key diagnostic fields have values
+    key_diagnostic_fields = [
+        get_form_float('radius_worst'),
+        get_form_float('area_worst'),
+        get_form_float('perimeter_worst'),
+        get_form_float('concave_points_mean'),
+        get_form_float('concavity_worst'),
+        get_form_float('compactness_worst'),
+        get_form_float('texture_worst')
+    ]
+    
+    key_fields_present = any(val > 0.001 for val in key_diagnostic_fields)
     
     # Add 0 for the ID feature since it's in the model but not used for prediction
     final_features = [0] + features  # Add a placeholder for the 'id' column
@@ -224,7 +254,43 @@ def predict():
     
     # Determine result
     result = "Malignant (M)" if prediction[0] == 'M' else "Benign (B)"
-    confidence = probability[0][1] if prediction[0] == 'M' else probability[0][0]
+    
+    # Adjust confidence calculation for more realistic values
+    if all_zeros or not key_fields_present:
+        # If all values are zero or key fields are missing, set very low confidence
+        # Default to benign prediction with very low confidence when no data
+        result = "Benign (B) - Insufficient Data"
+        confidence = 0.50  # Set to 50% to indicate high uncertainty
+        warning_message = "Warning: Insufficient data provided. Prediction may not be reliable."
+    else:
+        # Normal confidence calculation with adjustments
+        if prediction[0] == 'M':
+            raw_confidence = probability[0][1]
+            
+            # Apply a more realistic confidence scaling for malignant predictions
+            if raw_confidence > 0.95:
+                # Map extremely high confidences (0.95-1.00) to a range of 0.90-0.94
+                confidence = 0.90 + (raw_confidence - 0.95) * (0.04 / 0.05)
+            elif raw_confidence > 0.85:
+                # Slightly reduce high confidence values
+                confidence = raw_confidence - 0.03
+            else:
+                # Keep moderate confidence values as they are
+                confidence = raw_confidence
+        else:
+            # For benign predictions, adjust confidence to be more realistic too
+            raw_confidence = probability[0][0]
+            if raw_confidence > 0.98:
+                # Cap extremely high benign confidences at 98%
+                confidence = 0.98
+            elif raw_confidence > 0.90:
+                # Slightly reduce very high confidences
+                confidence = 0.90 + (raw_confidence - 0.90) * 0.8
+            else:
+                # Keep moderate confidence values as they are
+                confidence = raw_confidence
+        
+        warning_message = None
     
     # Store prediction results and patient details in session for PDF generation
     session['prediction'] = {
@@ -236,16 +302,37 @@ def predict():
         'doctor': session.get('user_name')  # Add the doctor's name who made the prediction
     }
     
+    # Store key feature values for visualization
+    visualization_data = {
+        'radius_worst': get_form_float('radius_worst'),
+        'area_worst': get_form_float('area_worst'),
+        'perimeter_worst': get_form_float('perimeter_worst'),
+        'concave_points_mean': get_form_float('concave_points_mean'),
+        'concavity_worst': get_form_float('concavity_worst'),
+        'compactness_worst': get_form_float('compactness_worst'),
+        'texture_worst': get_form_float('texture_worst'),
+        'area_mean': get_form_float('area_mean')
+    }
+    
+    session['visualization_data'] = visualization_data
+    
+    # Pass all the form data back to the template to preserve input values
+    form_data = request.form.to_dict()
+    
     return render_template('index.html', 
                           prediction_text=f'Breast Cancer Prediction: {result}',
                           confidence=f'Confidence: {confidence:.2%}',
+                          warning_message=warning_message,
                           patient_name=patient_details['name'],
                           patient_age=patient_details['age'],
                           patient_gender=patient_details['gender'],
                           patient_contact=patient_details['contact'],
                           patient_blood=patient_details['blood_group'],
                           patient_email=patient_details['email'],
-                          user_name=session.get('user_name'))
+                          user_name=session.get('user_name'),
+                          user_role=session.get('user_role'),
+                          form_data=form_data,  # Pass all form data back to template
+                          visualization_data=visualization_data)  # Pass visualization data
 
 @app.route('/generate_pdf')
 @login_required
@@ -485,7 +572,7 @@ def generate_pdf_data():
     
     # Add timestamp and doctor info
     elements.append(Paragraph(f"Report Generated: {timestamp}", styles['Normal']))
-    elements.append(Paragraph(f"Generated By: {doctor_name}", styles['Normal']))
+    elements.append(Paragraph(f"Generated By: Dr. {doctor_name}", styles['Normal']))
     elements.append(Spacer(1, 20))
     
     # Add patient information
