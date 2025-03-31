@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, make_response, session, url_for, redirect, flash, jsonify
+from flask import Flask, request, render_template, make_response, session, url_for, redirect, jsonify
 import pickle
 import numpy as np
 import io
